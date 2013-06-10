@@ -212,7 +212,6 @@ class DB
         function setImgFilename( $img_filename ){ $this->_img_filename = $img_filename; }
         function getOptions( ){ return $this->_options;}
         function setOptions( $options }{ $this->_options = $options ; }
-        
     }
 
     class PollDAO extends DB {
@@ -236,6 +235,15 @@ class DB
                 $ret[] = $poll ; 
             }
             return $ret ;
+        }
+        function insertPoll( $poll ){
+            $sql = sprintf("INSERT INTO polls (name, password, department) VALUES ( '%s', '%s', '%s')", 
+                            clean( $user->getName() ), 
+                            clean( $user->getPassword() ),
+                            clean( $user->getDepartment() ) );
+            $this->query( $sql );
+            return $this->get_insert_id();
+
         }
     }
 
