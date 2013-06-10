@@ -211,7 +211,7 @@ class DB
         function getImgFilename( ){ return $this->_img_filename; }
         function setImgFilename( $img_filename ){ $this->_img_filename = $img_filename; }
         function getOptions( ){ return $this->_options;}
-        function setOptions( $options }{ $this->_options = $options ; }
+        function setOptions( $options ){ $this->_options = $options ; }
     }
 
     class PollDAO extends DB {
