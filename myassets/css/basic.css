@@ -1,0 +1,20 @@
+.container {
+
+	margin-right: auto;
+	margin-left: auto;
+
+}
+
+body { 
+	padding-top: 33px; 
+}
+
+.img-circle {
+	width: 150px;
+	height: 150px;
+}
+
+.navbar-inverse .navbar-inner {
+	background-color: #FF7F27;
+}
+
