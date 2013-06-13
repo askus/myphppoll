@@ -15,4 +15,10 @@ function check_login(){
 	}
 }
 
+
+function format_datetime( $dt ){
+	return date_format($dt , 'Y-m-d H:i:s');
+
+}
+
 ?>

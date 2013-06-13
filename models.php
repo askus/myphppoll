@@ -1,4 +1,6 @@
 <?php
+
+require_once( "utility.php");
 function clean( $str ){
     return strip_tags(stripslashes(mysql_real_escape_string( $str ) ) );
 }
@@ -35,8 +37,8 @@ class DB
     
     function query($sql)
     {
-        print_r( $sql );
-        echo "<br>";
+        //print_r( $sql );
+        //echo "<br>";
         if (! $queryResource = mysql_query($sql, $this->_dbConn) ){
             return null; 
         }
@@ -123,7 +125,7 @@ class DB
     class UserDAO extends DB
     {
         function getUserByName( $name ){
-            $sql = sprintf("SELECT name, password FROM users WHERE name = '%s'" ,  clean( $name )  );
+            $sql = sprintf("SELECT  name, password, user_id, department FROM users WHERE name = '%s'" ,  clean( $name )  );
             $this->query( $sql );
             $tmpUser = $this->fetch_object();
             if( $tmpUser == null ){ return null; }
@@ -131,8 +133,9 @@ class DB
             $retUser = new User();
             $retUser->setName( $tmpUser->name );
             $retUser->setPassword( $tmpUser->password);
-            $retUser->setDepartment( $tmpUser->department );
             $retUser->setUserId( $tmpUser->user_id );
+            $retUser->setDepartment( $tmpUser->department );
+
             return $retUser;
         }
 
@@ -166,13 +169,13 @@ class DB
 
     class OptionDAO extends DB {
         function getOptionByPollId( $poll_id ){
-            $sql = sprintf("SELECT * FROM options WHERE poll_id = %d ORDER BY rank", clean( $user_id )); 
+            $sql = sprintf("SELECT * FROM options WHERE poll_id = %d ORDER BY rank", clean( $poll_id )); 
             $ret = Array();
             $this->query( $sql );
             while( ($tmp_option = $this->fetch_object()) != null ){
-                $option = new Poll();
+                $option = new Option();
                 $option->setOptionId( $tmp_option->poll_id );
-                $option->setImgFilename( $tmp_option->img_filename);
+                $option->setImgFilename( $tmp_option->img_filename );
                 $option->setDescription( $tmp_option->description );
                 $option->setPollId( $tmp_option->poll_id );
                 $option->setRank( $tmp_option->rank);
@@ -180,13 +183,32 @@ class DB
             }
             return $ret ;
         }
+        function insertOption( $option ){
+            $sql = sprintf("INSERT INTO options ( img_filename, description, poll_id, rank ) 
+                VALUES ('%s', '%s', %d, %d  ) ",
+                $option->getImgFilename(),
+                $option->getDescription(),
+                $option->getPollId(),
+                $option->getRank()
+            );
+
+            $this->query( $sql );
+            $option_id = $this->get_insert_id();
+            return $option_id; 
+        }
+        function updateOption( $option ){
+            $sql = sprintf("UPDATE options SET img_filename ='%s', description='%s', poll_id=%d, rank=%s WHERE option_id=%d", 
+                $option->getImgFilename(), $option->getDescription(), $option->getPollId(), $option->getRank(), $option->getOptionId());
+            $this->query($sql );
+
+        }
     }
 
 
     class Poll{
         var $_poll_id = null;
         var $_title = null;
-        var $_descrption = null; 
+        var $_description = null; 
         var $_department = null;
         var $_start_date =null;
         var $_due_date = null;
@@ -198,8 +220,8 @@ class DB
         function setPollId( $poll_id ){ $this->_poll_id = $poll_id ; }
         function getTitle( ){ return $this->_title; }
         function setTitle( $title ){ $this->_title = $title; }
-        function getDescription( ){ return $this->_descrption; }
-        function setDescription( $description ){ $this->_descrption = $description ;}
+        function getDescription( ){ return $this->_description; }
+        function setDescription( $description ){ $this->_description = $description ;}
         function getDepartment( ){ return $this->_department;}
         function setDepartment( $department ){ $this->_department = $department; }
         function getStartDate( ){ return $this->_start_date;}
@@ -217,7 +239,7 @@ class DB
     class PollDAO extends DB {
         function getPollByUserId( $user_id ){
             $sql = sprintf("SELECT * FROM polls WHERE user_id = '%s' ORDER BY due_date DESC", clean( $user_id )); 
-            $ret = Array();
+            $ret = array();
             $this->query( $sql );
 
             $optionDao = new OptionDAO(); 
@@ -226,24 +248,98 @@ class DB
                 $poll = new Poll();
                 $poll->setPollId( $tmp_poll->poll_id );
                 $poll->setTitle( $tmp_poll->title );
+                $poll->setDescription( $tmp_poll->description );
                 $poll->setDepartment( $tmp_poll->department);
-                $poll->setStartDate( $tmp_poll->start_date );
-                $poll->setDueDate( $tmp_poll->due_date);
+                $poll->setStartDate( new DateTime( $tmp_poll->start_date ) );
+                $poll->setDueDate( new DateTime( $tmp_poll->due_date ) );
                 $poll->setUserId( $tmp_poll->user_id);
                 $poll->setImgFilename( $tmp_poll->img_filename );
                 $poll->setOptions( $optionDao->getOptionByPollId( $poll->getPollId()) );
                 $ret[] = $poll ; 
             }
+            $optionDao->close();
+            
             return $ret ;
         }
-        function insertPoll( $poll ){
-            $sql = sprintf("INSERT INTO polls (name, password, department) VALUES ( '%s', '%s', '%s')", 
-                            clean( $user->getName() ), 
-                            clean( $user->getPassword() ),
-                            clean( $user->getDepartment() ) );
-            $this->query( $sql );
-            return $this->get_insert_id();
 
+        function getPollByPollId( $poll_id ){
+            $sql = sprintf("SELECT * FROM polls WHERE poll_id = %d", clean( $poll_id )); 
+            $ret = array();
+            $this->query( $sql );
+
+            $optionDao = new OptionDAO(); 
+            while( ($tmp_poll = $this->fetch_object()) != null ){
+                $poll = new Poll();
+                $poll->setPollId( $tmp_poll->poll_id );
+                $poll->setTitle( $tmp_poll->title );
+                $poll->setDescription( $tmp_poll->description );
+                $poll->setDepartment( $tmp_poll->department);
+                $poll->setStartDate( new DateTime( $tmp_poll->start_date ) );
+                $poll->setDueDate( new DateTime( $tmp_poll->due_date) ) ;
+                $poll->setUserId( $tmp_poll->user_id);
+                $poll->setImgFilename( $tmp_poll->img_filename );
+                $poll->setOptions( $optionDao->getOptionByPollId( $poll->getPollId()) );
+                $ret[] = $poll ; 
+            }
+            $optionDao->close();
+            
+            return $ret[0] ;
+        }
+
+        function updatePoll( $poll ){
+
+            $sql = sprintf("UPDATE polls SET title ='%s', description='%s', department='%s', start_date='%s', due_date='%s', img_filename ='%s' WHERE option_id = %d ", 
+                        $poll->getTitle(),
+                        $poll->getDescription(),
+                        $poll->getDepartment(),
+                        format_datetime( $poll->getStartDate() ),
+                        format_datetime($poll->getDueDate() ),
+                        $poll->getImgFilename(),
+                        $poll->getPollId()
+                    );
+            $this->query( $sql );
+
+            if( !is_null( $poll->getOptions())){
+                $optionDao = new OptionDAO();
+                foreach( $poll->getOptions() as $option ){
+                    $option->setPollId( $poll->getPollId());
+                    if( is_null( $option->getOptionId() )  ){
+                        $optionDao->insertOption( $option );
+                    }else{
+                        $optionDao->updateOption( $option );
+                    }
+                }
+                //$optionDao->close();
+            }
+
+        }
+
+
+        function insertPoll( $poll ){
+            $sql = sprintf("INSERT INTO polls (title, description ,department, start_date, due_date, user_id, img_filename) 
+                    VALUES ( '%s', '%s','%s', '%s', '%s', %d, '%s' )", 
+                            clean( $poll->getTitle() ), 
+                            clean( $poll->getDescription() ), 
+                            clean( $poll->getDepartment() ),
+                            format_datetime( $poll->getStartDate() ), 
+                            format_datetime( $poll->getDueDate() ),
+                            $poll->getUserId(),
+                            $poll->getImgFilename()
+                    );
+            $this->query( $sql );
+            $poll_id = $this->get_insert_id();
+            $poll->setPollId( $poll_id );
+
+            if( !is_null($poll->getOptions()) ){
+                $optionDao = new OptionDAO();
+                foreach( $poll->getOptions( ) as $option ){
+
+                    $option->setPollId( $poll_id );
+                    $option_id = $optionDao->insertOption( $option );
+                    $option->setOptionId( $option_id );
+                }
+            }
+            return $this->get_insert_id();
         }
     }
 

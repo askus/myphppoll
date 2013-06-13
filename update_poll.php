@@ -6,6 +6,7 @@
 	require_once( 'form_utility.php'); 
 	require_once( 'url.php');
 
+
 	check_login();
 	// check if exist poll_id 
 	if( !isset( $_GET['poll_id'])  ){ redirect_to('admin.php'); }
@@ -14,12 +15,50 @@
 	$poll = $pollDao->getPollByPollId( $_GET['poll_id']);
 	if( is_null( $poll ) ){ redirect_to('admin.php'); }
 
-	// check is updating 
+	// check updating 
 	if( isset($_POST["updating"]) && $_POST["updating"]== 1 ){
+			
+
+		
+
 		$poll = new Poll();
 		$poll->setPollId( $_POST["poll_id"]);
+		$poll->setTitle( $_POST['title']);
+		$poll->setDescription( $_POST['description']);
+		$poll->setDepartment( $_POST['department']);
+		$poll->setStartDate( concate_datetime( $_POST['start_date'])  );
+		$poll->setDueDate( concate_datetime( $_POST['due_date']));
+
+		//print_r($poll );
+
+		//echo "<br><br><br>";
+		//print_r( $_POST["option"]);
+
+		$option_array = array();
+
+		//concate option
+		$raw_option_array = array();
+		foreach( $_POST['option']['poll_id'] as $key => $id ){
+			$raw_option = array();
+			$raw_option['poll_id']= $id ;
+			$raw_option['rank'] =  $_POST['option']['rank'][$key];
+			$raw_option['description'] = $_POST['option']['description'][$key];
+			$raw_option['img_filename'] = $_POST['option']['img_filename'][$key];
+			$raw_option_array[] = $raw_option ;
+		}
+
+		foreach( $raw_option_array as $raw_option ){
+			$option = new Option();
+			$option->setRank( $raw_option['rank']);
+			$option->setDescription( $raw_option['description']);
+			if( isset( $raw_option['option_id']) ){ $option->setOptionId( $raw_option['option_id']) ; }
+			$option_array[] = $option;
+		}
+		$poll->setOptions( $option_array );
+		$pollDao->updatePoll( $poll );
 
 	}
+
 
 ?>
 <?php require( "menu.php"); ?>
@@ -28,46 +67,44 @@
 	<div class="span2"></div>
 	<div class="span8">
 		<h3>修改票選內容</h3>
-		<form action="update_poll.php?poll_id=<?= $poll->getPollId(); ?>" enctype="multipart/form-data" method="POST">
-		<table>
+		<?php 
+			require_once('_poll_form.php');
+			render_poll_form( $poll ); ?>
 
-			<input type="hidden" name="updating" value=1>
-			<input type="hidden" name="poll_id" value="<?= $poll->getPollId() ?>"></input>
-			<tr><td><label>標題</label></td><td><?php echo short_text( "title", $poll->getTitle(), 4  ); ?> </td></tr>
-			<tr><td><label>內容</label></td><td><?php echo long_text( "description", $poll->getDescription() ); ?></td></tr>
-			<tr><td><label>科室</label></td><td><?php echo short_text("department", $poll->getDepartment(), 3 ); ?></td></tr>
-			<tr><td><label>開始日期</label></td><td><?php echo datetime("start_date", $poll->getStartDate()); ?></td></tr>
-			<tr><td><label>截止日期</label></td><td><?php echo datetime("due_date", $poll->getDueDate( )); ?></td></tr>
-			<tr>
-				<td>
-					<label>標頭照片</label>
-				</td>
-				<td>
-					<? if( !is_null( $poll->getImgFilename()) ){ echo '<img src="'.logo_path( $poll->getImgFilename()).'" class="img-rounded" >' ;}?>
-					<input name="imgFile" type="file"></input>
-					<span class="help-block">建議上傳圖片大小：1500 x 300。僅支援 .jpg .png 格式</span>
-				</td>
-			</tr>	
-		</table>
-		<h4>選項</h4>
-		<table>
-			<tr><th>排序</th><th>說明</th><th>附加圖片</th></tr>
-			<?php 
-				foreach( $poll->getOptions() as $option){
-					echo '<tr>';
-					echo '<td>1</td>';
-					echo '<td>1</td>';
-					echo '<td>1</td>';
-					echo '</tr>';
-				}
-			?>
-		</table>
-		<table>
-			<tr><td></td><td><input class="btn btn-primary" type="submit"> &nbsp; <a class="btn" href="admin.php">放棄修改</a></input></td></tr> 
-		</table>
-		</form>
 	</div>
 	<div class="span2"></div>
 	</div>
 </div>
-<?php require("bottom.php"); ?>
+
+
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
+<script src="assets/js/vendor/jquery.ui.widget.js"></script>
+<script src="assets/js/jquery.iframe-transport.js"></script>
+<script src="assets/js/jquery.fileupload.js"></script>
+<script>
+	/*
+	$( function () {
+		'use strict';
+		var url = 'server/php/';
+		$('.fileupload').fileupload({
+			url: url,
+    		dataType: 'json',
+       		done: function (e, data) {
+     	 		$.each(data.result.files, function (index, file) {
+       		 		$('<p/>').text(file.name).appendTo( $(this) );
+   				});
+   				},
+    		progressall: function (e, data) {
+        		var progress = parseInt(data.loaded / data.total * 100, 10);
+        		$(this).parent().next('.progress').find('.bar').css(
+        			'width',
+           			progress + '%'
+           		);
+        	}
+    	});
+   	});
+   	*/
+</script>
+</body>
+</html>

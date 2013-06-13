@@ -2,8 +2,8 @@
 	function short_text( $name,  $value, $size=1 ){
 		return '<input class="span'.$size.'" type="text" name="'.$name.'" value="'.$value.'"></input>';
 	}
-	function long_text( $name, $value ){
-		return '<textarea name="'.$name.'">'.$value.'</textarea>'; 
+	function long_text( $name, $value, $size=5, $row=5 ){
+		return '<textarea class="span'.$size.'" rows='.$row.' name="'.$name.'">'.$value.'</textarea>'; 
 	}
 
 	function datetime( $name, $value ){
@@ -16,4 +16,13 @@
 		short_text( $name."[s]", date_format( $value, "s" )) );
 	}
 
+	function concate_datetime( $date_var ){
+		return	new DateTime(sprintf("%s-%s-%s %s:%s:%s", $date_var['Y'], $date_var['m'],  $date_var['d'],  $date_var['H'],  $date_var['i'],  $date_var['s']) ); 
+
+	}
+
+	function hidden( $name, $value ){
+		return "<input type='hidden' name='".$name."' value='".$value."'>";
+
+	}
 ?>
