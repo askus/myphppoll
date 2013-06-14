@@ -20,7 +20,7 @@ class DB
     function connect_db($host, $user, $pwd, $dbname)
     {
         //echo sprintf( "%s<br>%s<br>%s<br>%s<br>", $host, $user, $pwd, $dbname );
-        $dbConn = mysql_connect($host, $user, $pwd);
+        $dbConn = mysql_connect($host, $user, $pwd, true);
         if (! $dbConn)
             die ("MySQL Connect Error");
         mysql_query("SET NAMES utf8");
@@ -174,7 +174,7 @@ class DB
             $this->query( $sql );
             while( ($tmp_option = $this->fetch_object()) != null ){
                 $option = new Option();
-                $option->setOptionId( $tmp_option->poll_id );
+                $option->setOptionId( $tmp_option->option_id );
                 $option->setImgFilename( $tmp_option->img_filename );
                 $option->setDescription( $tmp_option->description );
                 $option->setPollId( $tmp_option->poll_id );
@@ -297,7 +297,9 @@ class DB
                         $poll->getImgFilename(),
                         $poll->getPollId()
                     );
+            //echo 'updating poll';
             $this->query( $sql );
+            //echo 'end updating poll';
 
             if( !is_null( $poll->getOptions())){
                 $optionDao = new OptionDAO();
@@ -309,7 +311,7 @@ class DB
                         $optionDao->updateOption( $option );
                     }
                 }
-                //$optionDao->close();
+                $optionDao->close();
             }
 
         }
@@ -338,6 +340,7 @@ class DB
                     $option_id = $optionDao->insertOption( $option );
                     $option->setOptionId( $option_id );
                 }
+                $optionDao->close();
             }
             return $this->get_insert_id();
         }
