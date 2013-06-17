@@ -168,6 +168,23 @@ class DB
     }
 
     class OptionDAO extends DB {
+        function getOptionByOptionId( $option_id ){
+            $sql= sprintf("SELECT * FROM options WHERE option_id =%d", $option_id );
+            $this->query( $sql );
+            $ret = Array( );
+            while( ($tmp_option = $this->fetch_object()) != null ){
+                $option = new Option();
+                $option->setOptionId( $tmp_option->option_id );
+                $option->setImgFilename( $tmp_option->img_filename );
+                $option->setDescription( $tmp_option->description );
+                $option->setPollId( $tmp_option->poll_id );
+                $option->setRank( $tmp_option->rank );
+                $ret[] = $option;  
+            }
+            
+            return $ret[0] ;
+
+        }
         function getOptionByPollId( $poll_id ){
             $sql = sprintf("SELECT * FROM options WHERE poll_id = %d ORDER BY rank", clean( $poll_id )); 
             $ret = Array();
@@ -175,7 +192,13 @@ class DB
             while( ($tmp_option = $this->fetch_object()) != null ){
                 $option = new Option();
                 $option->setOptionId( $tmp_option->option_id );
-                $option->setImgFilename( $tmp_option->img_filename );
+
+                //
+                if( strlen( trim( $tmp_option->img_filename) ) == 0 ){
+                    $option->setImgFilename( null );
+                }else{
+                    $option->setImgFilename( $tmp_option->img_filename );
+                }
                 $option->setDescription( $tmp_option->description );
                 $option->setPollId( $tmp_option->poll_id );
                 $option->setRank( $tmp_option->rank);
@@ -201,6 +224,10 @@ class DB
                 $option->getImgFilename(), $option->getDescription(), $option->getPollId(), $option->getRank(), $option->getOptionId());
             $this->query($sql );
 
+        }
+        function destroyOption( $option ){
+            $sql = sprintf(" DELETE FROM options WHERE option_id = %d", $option->getOptionId() );
+            $this->query( $sql );
         }
     }
 
@@ -230,7 +257,10 @@ class DB
         function setDueDate( $due_date ){ $this->_due_date = $due_date;}
         function getUserId(){ return $this->_user_id;}
         function setUserId( $user_id ){ $this->_user_id = $user_id;}
-        function getImgFilename( ){ return $this->_img_filename; }
+        function getImgFilename( ){ 
+            if( strlen( trim( $this->_img_filename ) ) == 0 ) return null;
+            return $this->_img_filename; 
+        }
         function setImgFilename( $img_filename ){ $this->_img_filename = $img_filename; }
         function getOptions( ){ return $this->_options;}
         function setOptions( $options ){ $this->_options = $options ; }
@@ -288,7 +318,7 @@ class DB
 
         function updatePoll( $poll ){
 
-            $sql = sprintf("UPDATE polls SET title ='%s', description='%s', department='%s', start_date='%s', due_date='%s', img_filename ='%s' WHERE option_id = %d ", 
+            $sql = sprintf("UPDATE polls SET title ='%s', description='%s', department='%s', start_date='%s', due_date='%s', img_filename ='%s' WHERE poll_id = %d ", 
                         $poll->getTitle(),
                         $poll->getDescription(),
                         $poll->getDepartment(),

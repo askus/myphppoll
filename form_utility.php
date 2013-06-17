@@ -20,9 +20,9 @@
 		return	new DateTime(sprintf("%s-%s-%s %s:%s:%s", $date_var['Y'], $date_var['m'],  $date_var['d'],  $date_var['H'],  $date_var['i'],  $date_var['s']) ); 
 
 	}
-
 	function hidden( $name, $value ){
 		return "<input type='hidden' name='".$name."' value='".$value."'>";
-
 	}
+
+	//function uploadFile( )
 ?>

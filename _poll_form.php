@@ -32,9 +32,13 @@ require_once( 'url.php');
 		echo '			<label>標頭照片</label>';
 		echo '		</td>';
 		echo '		<td>';
-		//if( !is_null( $poll->getImgFilename()) ){ echo '<img src="'.logo_path( $poll->getImgFilename()).'" class="img-rounded" >' ;}
-		
-		echo fileupload_html( "img_filename");
+		if( !is_null( $poll->getImgFilename()) ){ 
+			echo '<img src="'.logo_path( $poll->getImgFilename()).'" class="img-rounded poll_img" > ' ;
+			echo '<a id="destroy_poll_img_btn" onclick="destroy_poll_img( '. $poll->getPollId(). ' )" class="btn btn-danger"><i class="icon-remove"></i>刪除圖片</a>';
+		}else{
+			echo fileupload_html( "img_filename");
+		}
+		echo '<br>';
 		echo '		<span class="help-block">建議上傳圖片大小：1500 x 300。僅支援 .jpg .png 格式</span>';
 		echo '		</td>';
 		echo '	</tr>';	
@@ -45,17 +49,21 @@ require_once( 'url.php');
 				$row_id = 0;
 				foreach( $poll->getOptions() as $option){
 					echo '<tr id="'.$row_id.'" class="row_tr">';
-					$row_id += 1;
 					echo '<td>'.short_text( 'option[rank][]', $option->getRank(), 1).'</td>';
 					echo '<td>'.long_text('option[description][]', $option->getDescription()).'</td>';
 					echo '<td>';
 					echo hidden( 'option[option_id][]', $option->getOptionId() ) ;
-					//if( !is_null( $poll->getImgFilename())){ echo '<img src="'.option_path( $option->getImgFilename()).'" class="img_rounded" >'; }else{ echo '[ 無 ]'; }
+					if( !is_null( $option->getImgFilename())){ 
+						echo '<img src="'.option_path( $option->getImgFilename()).'" class="img_rounded" >';
+						echo '<br><a onclick="destroy_option_img( '. $option->getOptionId(). ', '.$option->getPollId().', '. $row_id.' )" class="btn btn-danger destroy_opition_img_btn"><i class="icon-remove"></i>刪除圖片</a>';				
+					}else{ 
+						echo fileupload_html( 'option[img_filename][]');
+					}
 					//echo '<input  class="fileupload" name="option[][img_filename]" type="file"></input>';
-					echo fileupload_html( 'option[img_filename][]');
 					echo '</td>';
-					echo '<td><a href="destroy_option.php?option_id='.$option->getOptionId().'" class="btn btn-danger remove_row"><i class="icon-remove"></i></a></td>';
+					echo '<td><a onclick="destroy_row('.$row_id.','.$option->getOptionId().','.$option->getPollId().')" class="btn btn-danger remove_row"><i class="icon-remove"></i></a></td>';
 					echo '</tr>';
+					$row_id += 1;
 				}
 		echo '</table>';
 		echo '<p><button class="btn btn-success" type="button" id="new_row_btn"><i class="icon-plus"></i>增加新的欄位</button></p>';
