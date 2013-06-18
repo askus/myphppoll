@@ -17,11 +17,33 @@ require_once( 'url.php');
 				;
 		*/
 	}
-	function render_poll_form( $poll ){
+	function render_create_poll_form( ){
+		echo '<form action="create_poll.php" enctype="multipart/form-data" method="POST">';
+		$poll = new Poll();
+		$poll->setStartDate( new DateTime( null,new DateTimeZone('Asia/Taipei') ) );
+		$tomorrow = new DateTime(null, new DateTimeZone('Asia/Taipei'));
+		$tomorrow->modify("+1 day");
+		$poll->setDueDate( $tomorrow );
+
+		$firstOption = new Option();
+		$firstOption->setRank(1);
+		$poll->setOptions( array( $firstOption) );
+		render_poll_form( $poll );
+	}
+	function render_update_poll_form( $poll ){
 		echo '<form action="update_poll.php?poll_id='.$poll->getPollId().'" enctype="multipart/form-data" method="POST">';
+		render_poll_form( $poll );
+	}
+	function render_poll_form( $poll ){
+		//echo '<form action="update_poll.php?poll_id='.$poll->getPollId().'" enctype="multipart/form-data" method="POST">';
 		echo '<table>';
 		echo '	<input type="hidden" name="updating" value=1>';
-		echo '	<input type="hidden" name="poll_id" value="'.$poll->getPollId().'"></input>';
+		if( is_null( $poll->getPollId() ) ){
+			$poll_id = "";		
+		}else{
+			$poll_id = $poll->getPollId();
+		}
+		echo '	<input type="hidden" name="poll_id" value="'.$poll_id.'"></input>';
 		echo '	<tr><td><label>標題</label></td><td>'.short_text( "title", $poll->getTitle(), 4  ).' </td></tr>';
 		echo '	<tr><td><label>內容</label></td><td>'.long_text( "description", $poll->getDescription()) .'</td></tr>';
 		echo '	<tr><td><label>科室</label></td><td>'.short_text("department", $poll->getDepartment(), 3 ).'</td></tr>';
@@ -35,9 +57,12 @@ require_once( 'url.php');
 		if( !is_null( $poll->getImgFilename()) ){ 
 			echo '<img src="'.logo_path( $poll->getImgFilename()).'" class="img-rounded poll_img" > ' ;
 			echo '<a id="destroy_poll_img_btn" onclick="destroy_poll_img( '. $poll->getPollId(). ' )" class="btn btn-danger"><i class="icon-remove"></i>刪除圖片</a>';
+			$poll_img_filename = $poll->getImgFilename();
 		}else{
-			echo fileupload_html( "img_filename");
+			echo fileupload_html( "poll_img");
+			$poll_img_filename = "";
 		}
+		echo '<input type="hidden" name="img_filename" value="'.$poll_img_filename.'"></input>';
 		echo '<br>';
 		echo '		<span class="help-block">建議上傳圖片大小：1500 x 300。僅支援 .jpg .png 格式</span>';
 		echo '		</td>';
@@ -56,9 +81,14 @@ require_once( 'url.php');
 					if( !is_null( $option->getImgFilename())){ 
 						echo '<img src="'.option_path( $option->getImgFilename()).'" class="img_rounded" >';
 						echo '<br><a onclick="destroy_option_img( '. $option->getOptionId(). ', '.$option->getPollId().', '. $row_id.' )" class="btn btn-danger destroy_opition_img_btn"><i class="icon-remove"></i>刪除圖片</a>';				
+						echo '<br>';
+						echo fileupload_html( 'option[option_img][]');
+						$option_img_filename = $option->getImgFilename();
 					}else{ 
-						echo fileupload_html( 'option[img_filename][]');
+						echo fileupload_html( 'option[option_img][]');
+						$option_img_filename = ""; 
 					}
+					echo '<input type="hidden" class="hidden_option_img_filename" name="option[img_filename][]" value="'.$option_img_filename.'"></input>';
 					//echo '<input  class="fileupload" name="option[][img_filename]" type="file"></input>';
 					echo '</td>';
 					echo '<td><a onclick="destroy_row('.$row_id.','.$option->getOptionId().','.$option->getPollId().')" class="btn btn-danger remove_row"><i class="icon-remove"></i></a></td>';
@@ -66,9 +96,10 @@ require_once( 'url.php');
 					$row_id += 1;
 				}
 		echo '</table>';
-		echo '<p><button class="btn btn-success" type="button" id="new_row_btn"><i class="icon-plus"></i>增加新的欄位</button></p>';
 
 		echo '<table>';
+		echo ' <tr><td></td><td><button class="btn btn-success" type="button" id="new_row_btn"><i class="icon-plus"></i>增加新的欄位</button></td>';
+		echo ' <tr><td colspan=2>&nbsp;</td></tr>';
 		echo '	<tr><td></td><td><input class="btn btn-primary" type="submit" value="更新"> &nbsp; <a class="btn" href="admin.php">放棄修改</a></input></td></tr>'; 
 		echo '</table>';
 		echo '</form>';

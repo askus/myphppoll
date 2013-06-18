@@ -1,9 +1,10 @@
+
 <?php
 	require_once( 'utility.php' );
 	require_once( 'models.php');
 	check_login();
-	$option_id =  $_GET['option_id'];
 	$poll_id = $_GET['poll_id'];
+	$option_id = $_GET['option_id'];
 
 	if( !isset( $option_id)  ){ 
 		$errMsg = "Not found option id.";
@@ -22,4 +23,5 @@
 		$optionDao->close();
 	}
 	echo sprintf(" { success: %d ,errMsg: '%s' }", $isSuccess, $errMsg );
+
 ?>

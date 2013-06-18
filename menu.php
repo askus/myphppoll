@@ -4,9 +4,14 @@
 	<link href="assets/css/bootstrap.css" rel="stylesheet">
 	<link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
 	<link href="myassets/css/basic.css" rel="stylesheet">
-	<link href="myassets/css/<?php echo $page;?>.css" rel="stylesheet">
-	<link rel="stylesheet" href="assets/css/style.css">
-	<link rel="stylesheet" href="assets/css/jquery.fileupload-ui.css">
+	
+	<?php 
+		$css_filepath = "myassets/css/".$page.".css";
+		if( file_exists($css_filepath ) ){
+			echo '<link href="'.$css_filepath.'" rel="stylesheet"> ';
+		}
+	?>
+
 	<meta charset="utf-8">
 	<title><?php echo $page_title; ?></title>
 </head>

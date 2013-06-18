@@ -1,6 +1,8 @@
 <?php 
 $page_title ="後台-投票";
 $page = "admin";
+
+
 require_once( 'utility.php');
 require_once( 'models.php');
 require_once( 'url.php');
@@ -28,25 +30,34 @@ check_login();
 						$user = $_SESSION["user"];
 						$pollDao = new PollDAO();
 						$polls = $pollDao->getPollByUserId( $user->getUserId());
+						$row_id = 0;
 						foreach( $polls as $poll ){
-							echo '<tr>';
-							echo sprintf('<td>%s</td>', $poll->getTitle()) ;
+							echo '<tr id="row_'.$row_id.'">';
+							echo sprintf('<td class="title">%s</td>', $poll->getTitle()) ;
 							echo sprintf('<td>%s</td>', $poll->getDescription());
 							echo sprintf('<td>%s</td>', $poll->getDepartment());
 							echo sprintf('<td>%s</td>', format_datetime( $poll->getStartDate()) );
 							echo sprintf('<td>%s</td>', format_datetime( $poll->getDueDate()) ) ;
-							$imgurl = sprintf("%s/%s", $LOGO_DIR, $poll->getImgFilename() ) ;
-							echo sprintf('<td class="img_logo"><a href="%s" target="blank"><img src="%s"></a></td>',  $imgurl , $imgurl );
+							
+							if( $poll->getImgFilename() != null ){
+								$imgurl = sprintf("%s/%s", $LOGO_DIR, $poll->getImgFilename() ) ;
+								echo sprintf('<td class="img_logo"><a href="%s" target="blank"><img src="%s"></a></td>',  $imgurl , $imgurl );
+							}else{
+								echo '<td class="img_logo">[無Logo]</td>';
+							}
 							echo '<td><a class="btn btn-small" href="update_poll.php?poll_id='.$poll->getPollId().'"> &nbsp;<i class="icon-edit"></i>&nbsp;</a> 
-								<a class="btn btn-small" href="remove_poll.php?poll_id='.$poll->getPollId().'"> &nbsp;<i class="icon-remove"> </i>&nbsp;</a>
+								<a class="btn btn-small" onclick="destroy_poll('.$poll->getPollId().', '. $row_id.')" > &nbsp;<i class="icon-remove"> </i>&nbsp;</a>
 
 								</td>'; 
 							echo '</tr>';
+							$row_id++;
 						}
-
 					?>
 				</tbody>
 			</table>
+			<a class="btn btn-success" type="button" id="new_row_btn" href="create_poll.php">
+				<i class="icon-plus"></i>增加新的票選活動
+			</a>
 		</div>
 	</div>
 

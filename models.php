@@ -157,7 +157,10 @@ class DB
         var $_rank = null;
         function getOptionId(){ return $this->_option_id; }
         function setOptionId( $option_id ){ $this->_option_id = $option_id;}
-        function getImgFilename(){ return $this->_img_filename; }
+        function getImgFilename(){ 
+            if( strlen( trim( $this->_img_filename ) ) == 0 ) return null;
+            return $this->_img_filename; 
+        }
         function setImgFilename( $img_filename ){ $this->_img_filename = $img_filename;}       
         function getDescription(){ return $this->_descrption; }
         function setDescription( $description ){ $this->_descrption = $description; }
@@ -228,6 +231,11 @@ class DB
         function destroyOption( $option ){
             $sql = sprintf(" DELETE FROM options WHERE option_id = %d", $option->getOptionId() );
             $this->query( $sql );
+        }
+        function destroyOptionByPollId( $poll_id ){
+            $sql = sprintf(" DELETE FROM options WHERE poll_id = %d ", $poll_id );
+            $this->query( $sql );
+
         }
     }
 
@@ -317,14 +325,14 @@ class DB
         }
 
         function updatePoll( $poll ){
-
-            $sql = sprintf("UPDATE polls SET title ='%s', description='%s', department='%s', start_date='%s', due_date='%s', img_filename ='%s' WHERE poll_id = %d ", 
+            $sql = sprintf("UPDATE polls SET title ='%s', description='%s', department='%s', start_date='%s', due_date='%s', img_filename ='%s', user_id = %d  WHERE poll_id = %d ", 
                         $poll->getTitle(),
                         $poll->getDescription(),
                         $poll->getDepartment(),
                         format_datetime( $poll->getStartDate() ),
                         format_datetime($poll->getDueDate() ),
                         $poll->getImgFilename(),
+                        $poll->getUserId(),
                         $poll->getPollId()
                     );
             //echo 'updating poll';
@@ -346,6 +354,15 @@ class DB
 
         }
 
+        function destroyPoll( $poll ){
+            $sql = sprintf("DELETE FROM polls WHERE poll_id = %s", $poll->getPollId() );
+            $this->query( $sql );
+            
+            $optionDao = new OptionDAO();
+            $optionDao->destroyOptionByPollId( $poll->getPollId() ) ;
+            $optionDao->close();
+
+        }
 
         function insertPoll( $poll ){
             $sql = sprintf("INSERT INTO polls (title, description ,department, start_date, due_date, user_id, img_filename) 

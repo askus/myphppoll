@@ -1,6 +1,6 @@
 <?php
-	$page_title ="後台-修改票選";
-	$page = "update_poll";
+	$page_title ="後台-新增票選";
+	$page = "create_poll";
 	$LOAD_JS_ARRAY=array("_form.js");
 
 	require_once( 'utility.php' );
@@ -10,17 +10,41 @@
 	require_once( 'upload_utility.php');
 
 	check_login();
-	// check if exist poll_id 
-	if( !isset( $_GET['poll_id'])  ){ redirect_to('admin.php'); }
-	// check is the author's poll
-	$pollDao = new PollDAO();
-	$poll = $pollDao->getPollByPollId( $_GET['poll_id']);
-	if( is_null( $poll ) ){ redirect_to('admin.php'); }
 
 	// check updating 
 	if( isset($_POST["updating"]) && $_POST["updating"]== 1 ){
-		
-			$option_array = array();
+		$user = $_SESSION["user"];
+
+		//insert a pseudo poll to get poll id ;
+		$pollDao = new PollDAO();
+		$pseudoPoll = new Poll();
+		$pseudoPoll->setTitle("");
+		$pseudoPoll->setDepartment("");
+		$pseudoPoll->setStartDate( new DateTime() );
+		$pseudoPoll->setDueDate( new DateTIme() );
+		$pseudoPoll->setImgFilename("");
+		$poll_id =  $pollDao->insertPoll( $pseudoPoll );
+
+		//update poll
+		$poll = new Poll();
+		$poll->setPollId( $poll_id );
+		$poll->setTitle( $_POST['title']);
+		$poll->setDescription( $_POST['description']);
+		$poll->setDepartment( $_POST['department']);
+		$poll->setStartDate( concate_datetime( $_POST['start_date'])  );
+		$poll->setDueDate( concate_datetime( $_POST['due_date']));
+		$poll->setImgFilename( $_POST['img_filename']);
+		$poll->setUserId( $user->getUserId() );
+
+		//process for image uploading
+		$errMsg= "";
+		if( check_upload_img( $_FILES["poll_img"] , $errMsg  )  ){
+			$poll_img_filename = move_to_place( $_FILES["poll_img"], $LOGO_DIR, $poll->getPollId() );
+			$poll->setImgFilename( $poll_img_filename );
+		}
+
+
+		$option_array = array();
 		//concate option
 		$raw_option_array = array();
 		foreach( $_POST['option']['option_id'] as $key => $id ){
@@ -38,24 +62,7 @@
 			$option_file['error'] = $_FILES['option']['error']['option_img'][$key ];
 			$option_file['size'] = $_FILES['option']['size']['option_img'][$key ];
 			$raw_option['option_img'] = $option_file ;
-
 			$raw_option_array[] = $raw_option ;
-		}
-		//update poll
-		$poll = new Poll();
-		$poll->setPollId( $_POST["poll_id"]);
-		$poll->setTitle( $_POST['title']);
-		$poll->setDescription( $_POST['description']);
-		$poll->setDepartment( $_POST['department']);
-		$poll->setStartDate( concate_datetime( $_POST['start_date'])  );
-		$poll->setDueDate( concate_datetime( $_POST['due_date']));
-		$poll->setImgFilename( $_POST['img_filename']);
-
-		//process for image uploading
-		$errMsg= "";
-		if( check_upload_img( $_FILES["poll_img"] , $errMsg  )  ){
-			$poll_img_filename = move_to_place( $_FILES["poll_img"], $LOGO_DIR, $poll->getPollId() );
-			$poll->setImgFilename( $poll_img_filename );
 		}
 
 		$optionDao = new OptionDAO();
@@ -65,7 +72,7 @@
 			$option->setDescription( $raw_option['description']);
 			$option->setImgFilename( $raw_option['img_filename']);
 			
-			if( !isset( $raw_option['option_id'] ) or $raw_option['option_id'] =="" or $raw_option['option_id'] ==null ){
+			if( !isset( $raw_option['option_id'] ) or $raw_option['option_id'] == "" or $raw_option['option_id'] ==null ){
 				$tmp_poll_id= -1;
 				$option->setPollId( $tmp_poll_id );
 				$option_id = $optionDao->insertOption( $option);
@@ -80,10 +87,14 @@
 			}
 			$option_array[] = $option;
 		}
+		$optionDao->close();
+
 		$poll->setOptions( $option_array );
-		
+
 		$pollDao->updatePoll( $poll );
 		$pollDao->close();
+
+		redirect_to('admin.php');
 	}
 
 ?>
@@ -92,11 +103,10 @@
 	<div class="row">
 		<!-- <div class="span">&nbsp;</div> -->
 		<div class="span12">
-			<h3>修改票選內容</h3>
+			<h3>新增票選內容</h3>
 			<?php 
 				require_once('_poll_form.php');
-				render_update_poll_form( $poll ); ?>
-
+				render_create_poll_form( $poll ); ?>
 		</div>
 		<!--<div class="span2">&nbsp;</div> -->
 	</div>

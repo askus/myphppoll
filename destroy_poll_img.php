@@ -11,8 +11,6 @@
 		$pollDao = new PollDAO();
 		$poll = $pollDao->getPollByPollId( $poll_id );
 
-		//print_r( $poll );
-
 		$isSuccess= 0;
 
 		if( $user->getUserId() != $poll->getUserId() ){
