@@ -87,6 +87,60 @@ class DB
         
     }
 
+    class Vote{
+        var $_vote_id = null;
+        var $_option_id = null;
+        var $_ip = null; 
+        var $_last_vote = null;
+        function setVoteId( $vote_id ){ $this->_vote_id = $vote_id ; }
+        function getVoteId( ){ return $this->_vote_id ; }
+        function setOptionId( $option_id ){ $this->option_id = $option_id; }
+        function getOptionId( ){ return $this->_option_id ; }
+        function setIp( $ip){ $this->_ip = $ip; }
+        function getIp( ){ return $this->ip; }
+        function setLastVote( $last_vote ){ $_last_vote = $last_vote; }
+        function getLastVote( ){ return $this->_last_vote ; }
+    }
+    class VoteDAO extends DB{
+        function getVoteByIp( $ip ){
+            $sql = sprintf("SELECT * FROM votes WHERE ip = '".$ip."'");
+            $this->query( $sql );
+            $ret_vote_array = array();
+            while( ($tmp_vote = $this->fetch_object()) != null ){
+                $vote = new Vote();
+                $vote->setVoteId( $tmp_vote->vote_id );
+                $vote->setOptionId( $tmp_vote->option_id );
+                $vote->setIp( $tmp_vote->ip );
+                $vote->setLastVote( $tmp_vote->last_vote);
+                $ret_vote_array[] =  $vote ;
+            }
+            return $ret ;
+        }
+
+        function insertVote( $vote ){
+            $sql = sprintf("INSERT INTO votes (option_id, ip ) VALUES ( '%s', '%s')" , $vote->getOptionId(), $vote->getIp() );
+            $this->query( $sql ) ;
+            $vote_id = $this->get_insert_id();
+            return $vote_id; 
+        }
+
+        function getVoteByIpAndPollId( $vote, $poll_id ){
+            $sql = sprintf("SELECT V.* FROM votes V , options O, polls P WHERE V.ip = '%s' AND V.option_id = O.option_id AND O.poll_id = P.poll_id AND P.poll_id = %d ORDER BY V.last_vote DESC", $ip, $poll_id );
+            $this->query( $sql );
+            $ret_vote_array = array();
+            while( ($tmp_vote = $this->fetch_object()) != null ){
+                $vote = new Vote();
+                $vote->setVoteId( $tmp_vote->vote_id );
+                $vote->setOptionId( $tmp_vote->option_id );
+                $vote->setIp( $tmp_vote->ip );
+                $vote->setLastVote( $tmp_vote->last_vote);
+                $ret_vote_array[] =  $vote ;
+            }
+            return $ret ;
+        }
+
+    }
+
     class User{
         var $_name = null  ;
         var $_password = null; // hashed password by md5
@@ -183,10 +237,8 @@ class DB
                 $option->setPollId( $tmp_option->poll_id );
                 $option->setRank( $tmp_option->rank );
                 $ret[] = $option;  
-            }
-            
+            }          
             return $ret[0] ;
-
         }
         function getOptionByPollId( $poll_id ){
             $sql = sprintf("SELECT * FROM options WHERE poll_id = %d ORDER BY rank", clean( $poll_id )); 
@@ -270,6 +322,13 @@ class DB
             return $this->_img_filename; 
         }
         function setImgFilename( $img_filename ){ $this->_img_filename = $img_filename; }
+        function getImgFilenameOrDefault(){
+            $MAX_DEFAULT_IMG_NUM= 6; 
+            if( $this->getImgFilename( ) == null ){
+                return sprintf("default_%d.png", $this->getPollId() % $MAX_DEFAULT_IMG_NUM ); 
+            }
+            return $this->getImgFilename();
+        }
         function getOptions( ){ return $this->_options;}
         function setOptions( $options ){ $this->_options = $options ; }
     }
@@ -323,6 +382,36 @@ class DB
             
             return $ret[0] ;
         }
+
+        function getPollBeforeDatetime( $datetime, $start=null, $length =null ){
+            if( !is_null( $start )&& !is_null( $length) ){
+                $sql =sprintf("SELECT * FROM polls WHERE due_date > '%s' ORDER BY start_date DESC LIMIT %d, %d", format_datetime( $datetime ) , $start, $length );
+            }else{
+                $sql =sprintf("SELECT * FROM polls WHERE due_date > '%s' ORDER BY start_date DESC", format_datetime( $datetime ));
+            }
+            $ret = array();
+            $this->query( $sql );
+
+            $optionDao = new OptionDAO(); 
+            while( ($tmp_poll = $this->fetch_object()) != null ){
+                $poll = new Poll();
+                $poll->setPollId( $tmp_poll->poll_id );
+                $poll->setTitle( $tmp_poll->title );
+                $poll->setDescription( $tmp_poll->description );
+                $poll->setDepartment( $tmp_poll->department);
+                $poll->setStartDate( new DateTime( $tmp_poll->start_date ) );
+                $poll->setDueDate( new DateTime( $tmp_poll->due_date) ) ;
+                $poll->setUserId( $tmp_poll->user_id);
+                $poll->setImgFilename( $tmp_poll->img_filename );
+                $poll->setOptions( $optionDao->getOptionByPollId( $poll->getPollId()) );
+                $ret[] = $poll ; 
+            }
+            $optionDao->close();
+            return $ret ; 
+        }
+
+
+
 
         function updatePoll( $poll ){
             $sql = sprintf("UPDATE polls SET title ='%s', description='%s', department='%s', start_date='%s', due_date='%s', img_filename ='%s', user_id = %d  WHERE poll_id = %d ", 

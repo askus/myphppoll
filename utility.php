@@ -18,7 +18,13 @@ function check_login(){
 
 function format_datetime( $dt ){
 	return date_format($dt , 'Y-m-d H:i:s');
+}
 
+function trim_str( $str, $max_len){
+	if( mb_strlen($str)> $max_len ){
+		return mb_substr( $str, 0, $max_len, "utf8") ."...";
+	}
+	return $str;
 }
 
 ?>

@@ -20,7 +20,7 @@
 	// check updating 
 	if( isset($_POST["updating"]) && $_POST["updating"]== 1 ){
 		
-			$option_array = array();
+		$option_array = array();
 		//concate option
 		$raw_option_array = array();
 		foreach( $_POST['option']['option_id'] as $key => $id ){
@@ -50,6 +50,7 @@
 		$poll->setStartDate( concate_datetime( $_POST['start_date'])  );
 		$poll->setDueDate( concate_datetime( $_POST['due_date']));
 		$poll->setImgFilename( $_POST['img_filename']);
+		$poll->setUserId( $_POST['user_id']);
 
 		//process for image uploading
 		$errMsg= "";
@@ -84,6 +85,8 @@
 		
 		$pollDao->updatePoll( $poll );
 		$pollDao->close();
+
+		redirect_to("admin.php");
 	}
 
 ?>

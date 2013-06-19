@@ -78,8 +78,8 @@
 	$due_date->modify('+1 day'); 
 	$poll->setDueDate( $due_date  );
 	$poll->setUserId( $root_user_id );
-	$poll->setImgFilename( "logo_3.jpg"); 
-	$poll->setDescription("票選最優質的婦少科LOGO");
+	$poll->setImgFilename( ""); 
+	$poll->setDescription("婦少科的LOGO應該長甚麼樣子呢？由您的一票來決定喔！");
 
 	$option1 = new Option();
 	$option1->setImgFilename( "option.png");
@@ -109,8 +109,40 @@
 	$due_date->modify('+1 day'); 
 	$poll->setDueDate( $due_date  );
 	$poll->setUserId( $root_user_id );
-	$poll->setImgFilename( "logo_1.jpg"); 
-	$poll->setDescription("票選最優質的救助科LOGO");
+	$poll->setImgFilename( ""); 
+	$poll->setDescription("救助科的LOGO應該長甚麼樣子呢？由您的一票來決定喔！");
+
+	$option1 = new Option();
+	$option1->setImgFilename( "option.png");
+	$option1->setDescription("選項一");
+	$option1->setRank( 0);
+
+	$option2 = new Option();
+	$option2->setImgFilename( "option.png");
+	$option2->setDescription("選項二");
+	$option2->setRank( 1);
+
+	$option3 = new Option();
+	$option3->setImgFilename( "option.png");
+	$option3->setDescription("選項三");
+	$option3->setRank( 2);
+
+	$poll->setOptions( array( $option1, $option2, $option3)); 
+	$pollDao = new PollDAO();
+	$pollDao->insertPoll( $poll );
+
+
+
+	$poll = new Poll();
+	$poll->setTitle("長青科LOGO票選活動");
+	$poll->setDepartment("長青福利科");
+	$poll->setStartDate( new DateTime( null, new DateTimeZone('Asia/Taipei')) );
+	$due_date =  new DateTime( null, new DateTimeZone('Asia/Taipei') );
+	$due_date->modify('+1 day'); 
+	$poll->setDueDate( $due_date  );
+	$poll->setUserId( $root_user_id );
+	$poll->setImgFilename( ""); 
+	$poll->setDescription("長青的LOGO應該長甚麼樣子呢？由您的一票來決定喔！");
 
 	$option1 = new Option();
 	$option1->setImgFilename( "option.png");

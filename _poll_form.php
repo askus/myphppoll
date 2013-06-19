@@ -44,6 +44,8 @@ require_once( 'url.php');
 			$poll_id = $poll->getPollId();
 		}
 		echo '	<input type="hidden" name="poll_id" value="'.$poll_id.'"></input>';
+		if( is_null( $poll->getUserId())){	$user_id= 1	;}else{ $user_id = $poll->getUserId();  }
+		echo '	<input type="hidden" name="user_id" value="'.$user_id.'"></input>';
 		echo '	<tr><td><label>標題</label></td><td>'.short_text( "title", $poll->getTitle(), 4  ).' </td></tr>';
 		echo '	<tr><td><label>內容</label></td><td>'.long_text( "description", $poll->getDescription()) .'</td></tr>';
 		echo '	<tr><td><label>科室</label></td><td>'.short_text("department", $poll->getDepartment(), 3 ).'</td></tr>';

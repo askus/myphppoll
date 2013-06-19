@@ -24,7 +24,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
 			</button>
-			<a class="brand" href="index.php">社會局票選系統</a>
+			<a class="brand" href="index.php">臺中市政府社會局票選系統</a>
 			<div class="nav-collapse collapse">
 				<ul class="nav">
 					<li><a href="index.php">近期票選</a></li>
