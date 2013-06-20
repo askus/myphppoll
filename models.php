@@ -94,11 +94,11 @@ class DB
         var $_last_vote = null;
         function setVoteId( $vote_id ){ $this->_vote_id = $vote_id ; }
         function getVoteId( ){ return $this->_vote_id ; }
-        function setOptionId( $option_id ){ $this->option_id = $option_id; }
+        function setOptionId( $option_id ){ $this->_option_id = $option_id; }
         function getOptionId( ){ return $this->_option_id ; }
         function setIp( $ip){ $this->_ip = $ip; }
-        function getIp( ){ return $this->ip; }
-        function setLastVote( $last_vote ){ $_last_vote = $last_vote; }
+        function getIp( ){ return $this->_ip; }
+        function setLastVote( $last_vote ){ $this->_last_vote = $last_vote; }
         function getLastVote( ){ return $this->_last_vote ; }
     }
     class VoteDAO extends DB{
@@ -124,7 +124,7 @@ class DB
             return $vote_id; 
         }
 
-        function getVoteByIpAndPollId( $vote, $poll_id ){
+        function getVoteByIpAndPollId( $ip, $poll_id ){
             $sql = sprintf("SELECT V.* FROM votes V , options O, polls P WHERE V.ip = '%s' AND V.option_id = O.option_id AND O.poll_id = P.poll_id AND P.poll_id = %d ORDER BY V.last_vote DESC", $ip, $poll_id );
             $this->query( $sql );
             $ret_vote_array = array();
@@ -136,7 +136,23 @@ class DB
                 $vote->setLastVote( $tmp_vote->last_vote);
                 $ret_vote_array[] =  $vote ;
             }
-            return $ret ;
+            return $ret_vote_array ;
+        }
+
+        function getVoteByOptionId( $option_id ){
+            $sql = sprintf("SELECT * FROM votes WHERE option_id = %d ", $option_id ) ;
+            $this->query( $sql );
+            $ret_vote_array = array();
+
+            while( ($tmp_vote = $this->fetch_object()) != null ){
+                $vote = new Vote();
+                $vote->setVoteId( $tmp_vote->vote_id );
+                $vote->setOptionId( $tmp_vote->option_id );
+                $vote->setIp( $tmp_vote->ip );
+                $vote->setLastVote( $tmp_vote->last_vote);
+                $ret_vote_array[] =  $vote ;
+            }
+            return $ret_vote_array ;
         }
 
     }
@@ -209,6 +225,7 @@ class DB
         var $_descrption = null;
         var $_poll_id = null; 
         var $_rank = null;
+        var $_votes = null;
         function getOptionId(){ return $this->_option_id; }
         function setOptionId( $option_id ){ $this->_option_id = $option_id;}
         function getImgFilename(){ 
@@ -222,6 +239,8 @@ class DB
         function setPollId( $poll_id ){ $this->_poll_id = $poll_id;}
         function getRank(){ return $this->_rank; }
         function setRank( $rank ) { $this->_rank = $rank;} 
+        function getVotes(){ return $this->_votes ; }
+        function setVotes( $votes  ){ $this->_votes = $votes; } 
     }
 
     class OptionDAO extends DB {
@@ -229,6 +248,8 @@ class DB
             $sql= sprintf("SELECT * FROM options WHERE option_id =%d", $option_id );
             $this->query( $sql );
             $ret = Array( );
+
+            $voteDao = new VoteDAO();
             while( ($tmp_option = $this->fetch_object()) != null ){
                 $option = new Option();
                 $option->setOptionId( $tmp_option->option_id );
@@ -236,19 +257,21 @@ class DB
                 $option->setDescription( $tmp_option->description );
                 $option->setPollId( $tmp_option->poll_id );
                 $option->setRank( $tmp_option->rank );
+                $option->setVotes( $voteDao->getVoteByOptionId( $option->getOptionId() ) );
                 $ret[] = $option;  
             }          
+            $voteDao->close();
             return $ret[0] ;
         }
         function getOptionByPollId( $poll_id ){
             $sql = sprintf("SELECT * FROM options WHERE poll_id = %d ORDER BY rank", clean( $poll_id )); 
             $ret = Array();
             $this->query( $sql );
+
+            $voteDao = new VoteDAO();
             while( ($tmp_option = $this->fetch_object()) != null ){
                 $option = new Option();
                 $option->setOptionId( $tmp_option->option_id );
-
-                //
                 if( strlen( trim( $tmp_option->img_filename) ) == 0 ){
                     $option->setImgFilename( null );
                 }else{
@@ -257,8 +280,11 @@ class DB
                 $option->setDescription( $tmp_option->description );
                 $option->setPollId( $tmp_option->poll_id );
                 $option->setRank( $tmp_option->rank);
+                $option->setVotes( $voteDao->getVoteByOptionId( $option->getOptionId() ) );
                 $ret[] = $option ; 
             }
+            $voteDao->close() ;
+
             return $ret ;
         }
         function insertOption( $option ){
@@ -274,6 +300,7 @@ class DB
             $option_id = $this->get_insert_id();
             return $option_id; 
         }
+
         function updateOption( $option ){
             $sql = sprintf("UPDATE options SET img_filename ='%s', description='%s', poll_id=%d, rank=%s WHERE option_id=%d", 
                 $option->getImgFilename(), $option->getDescription(), $option->getPollId(), $option->getRank(), $option->getOptionId());

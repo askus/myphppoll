@@ -3,7 +3,7 @@
 	$page_title ="錯誤";
 	$page = "error";
 
-	$errMsgs = array("您之前已經投過了喔，請等一等再投票。");
+	$errMsgs = array("您之前已經投過了喔。請一段時間過後再來投票，謝謝！");
 
 	require( "utility.php");
 	require( "models.php");

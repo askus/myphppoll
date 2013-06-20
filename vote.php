@@ -1,4 +1,3 @@
-
 <?php 
 $poll_id= $_GET['poll_id'];
 $page_title ="社會局票選系統";
@@ -17,19 +16,36 @@ $poll = $pollDao->getPollByPollId( $poll_id );
 // check poll_id is correct 
 if( is_null( $poll) ){ redirect_to("index.php");}
 
+
+
+// new a vote 
+$vote= new Vote();
+$vote->setOptionId( $_POST['choice_option_id']);
+$vote->setIp( $_SERVER['REMOTE_ADDR']);
+
+// check if voted
+$voteDao = new VoteDAO();
+$lastVotes = $voteDao->getVoteByIpAndPollId( $vote->getIp() , $poll->getPollId() );
+if( count( $lastVotes ) > 0 && abs( time() - strtotime( $lastVotes[0]->getLastVote() ) ) < $VOTE_INTERVAL * 60 * 60    ) {
+	redirect_to("error.php?errMsgId=0");
+	$errMsgs[] = "您已經投過票囉。";
+}
+
 //error handling
 $errMsgs = array();
 
 if( isset($_POST['updating']) && $_POST['updating'] == 1 ) {
 	$isOk = true ;
-	if( !isset($_POST['choice_option_id']) || is_null($_POST['choice_option_id'])  ) {
+
+	//print_r( $vote );
+	if( !isset($_POST['choice_option_id']) || is_null( $vote->getOptionId() ) ) {
 		$errMsg ="請選擇一個選項。";
 		$errMsgs[] = $errMsg;
 		$isOk = false; 
 	}else{
-		$choice_option_id = $_POST['choice_option_id'];
+		//$choice_option_id = $_POST['choice_option_id'];
 		$optionDao = new OptionDAO();
-		$option = $optionDao->getOptionByOptionId( $choice_option_id );
+		$option = $optionDao->getOptionByOptionId( $vote->getOptionId() );
 		if( $option->getPollId() != $poll->getPollId() ){
 			$errMsg ="請確認票選頁面是否正確。";
 			$errMsgs[] = $errMsg;
@@ -37,13 +53,15 @@ if( isset($_POST['updating']) && $_POST['updating'] == 1 ) {
 		}
 	}
 
+
 	$voteDao = new VoteDAO();
-	$ip = $_SERVER['REMOTE_ADDR']; 
-	$lastVotes = $voteDao->getVoteByIpAndPollId( $ip, $poll->getPollId() );
-	// the user cannot vote again in the time interval 
-	if( count( $lastVotes )>1 && ($lastVotes[0]->getLastVote()  - time() ) < $VOTE_INTERVAL * 60 * 60    ) {
+	$lastVotes = $voteDao->getVoteByIpAndPollId( $vote->getIp() , $poll->getPollId() );
+	if( count( $lastVotes ) > 0 && abs( time() - strtotime( $lastVotes[0]->getLastVote() ) ) < $VOTE_INTERVAL * 60 * 60    ) {
 		redirect_to("error.php?errMsgId=0");
+		$errMsgs[] = "您已經投過票囉。";
+		$isOk = false; 
 	}
+
 	if( isset($_POST["recaptcha_challenge_field"]) ){
 			require_once('myassets/lib/recaptcha/recaptchalib.php');
 			$privatekey = "6LeAneISAAAAAHiTJDo03tDNonmOecBfTizlcxG7";
@@ -56,11 +74,19 @@ if( isset($_POST['updating']) && $_POST['updating'] == 1 ) {
     			$errMsgs[] = $errMsg;
 	  			$isOk= false;
 	  		}
-		}
+	}else{
+		$errMsg = "請輸入驗證碼。";
+		$errMsgs[] = $errMsg;
+		$isOk=false; 
+	}
 	// submit one vote 
 	if( $isOk ){
-		
+		$voteDao->insertVote( $vote ); 
+		redirect_to( "success.php?poll_id=".$poll->getPollId() );
 	}
+
+	$pollDao->close();
+	$voteDao->close();
 }
 ?>
 
@@ -83,7 +109,7 @@ if( isset($_POST['updating']) && $_POST['updating'] == 1 ) {
 		<div class="span1">　</div>
 	</div>
 <?php
-	if( count($errMsgs ) > 1 ){
+	if( count($errMsgs ) > 0 ){
 		echo '<div class="row">';
 		echo '<div class="span1"></div>';
 		echo '<div class="span10 error">';
