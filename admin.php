@@ -43,10 +43,12 @@ check_login();
 								$imgurl = sprintf("%s/%s", $LOGO_DIR, $poll->getImgFilename() ) ;
 								echo sprintf('<td class="img_logo"><a href="%s" target="blank"><img src="%s"></a></td>',  $imgurl , $imgurl );
 							}else{
-								echo '<td class="img_logo">[無Logo]</td>';
+								echo '<td class="img_logo">[無]</td>';
 							}
-							echo '<td><a class="btn btn-small" href="update_poll.php?poll_id='.$poll->getPollId().'"> &nbsp;<i class="icon-edit"></i>&nbsp;</a> 
-								<a class="btn btn-small" onclick="destroy_poll('.$poll->getPollId().', '. $row_id.')" > &nbsp;<i class="icon-remove"> </i>&nbsp;</a>
+							echo '<td>
+									<a class="btn btn-small" href="analyze_poll.php?poll_id='.$poll->getPollId().'"> <i class="icon-eye-open"></i></a><br> 
+									<a class="btn btn-small" href="update_poll.php?poll_id='.$poll->getPollId().'"> <i class="icon-edit"></i></a> <br>
+									<a class="btn btn-small" onclick="destroy_poll('.$poll->getPollId().', '. $row_id.')" > <i class="icon-remove"> </i></a>
 
 								</td>'; 
 							echo '</tr>';

@@ -43,7 +43,7 @@ if ( isset($_SESSION['user']) ){
 			<form action="login.php" method="POST" class="form">
 				<p><label>帳號：</label><input type="text" name="name"></input></p>
 				<p><label>密碼：</label><input type="password" name="password"></input></p>
-				<input type="submit" class="btn btn-medium btn-primary"></input>
+				<input type="submit" class="btn btn-medium btn-primary" value="登入"></input>
 			</div>	
 		</div>
 		<div class="span2"></div>

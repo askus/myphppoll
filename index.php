@@ -36,7 +36,7 @@ $MAX_STR_LEN=100;
 				echo '		<div class="carousel-caption">';
 				echo '			<h1>'.$poll->getTitle().'</h1>';
 				echo '			<p class="lead">'.trim_str( $poll->getDescription(), $MAX_STR_LEN).'</p>';
-				echo '			<a class="btn btn-large btn-primary" href="vote.php?poll_id='.$poll->getPollId().'">參與投票</a>'; 
+				echo '			<a class="btn btn-large btn-primary" href="vote.php?poll_id='.$poll->getPollId().'">前往投票</a>'; 
 				echo '		</div>';
 				echo '	</div>';
 				echo '</div>';

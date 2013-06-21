@@ -1,0 +1,62 @@
+     .carousel .container {
+      position: relative;
+      z-index: 9;
+    }
+    .carousel .logo {
+      position: absolute;
+      top: 0;
+      left: 0;
+      min-width: 100%;
+      height: 400px;
+    }
+
+    .carousel-caption {
+      background-color: transparent;
+      position: static;
+      /*max-width: 550px; */
+      padding: 0 20px;
+      margin-top: 200px;
+    	text-align: center;
+    	height: 200px;
+    }
+    .carousel-caption h1,
+    .carousel-caption .lead {
+      margin: 0;
+      line-height: 1.25;
+      color: #fff;
+      text-shadow: 0 1px 1px rgba(0,0,0,.4);
+    }
+    .carousel-caption h1{
+    	font-size: 72px;
+    }
+
+
+
+  table .table-radio {
+    height: 140px;
+    vertical-align: middle !important;
+    max-width: 10px;
+    /* background-color: #EFE4B0; */
+  } 
+
+  table .table-choice {
+    vertical-align: middle !important;
+
+  } 
+
+
+  
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: steelblue;
+}
+
+.x.axis path {
+  display: none;
+}
