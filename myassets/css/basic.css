@@ -6,7 +6,7 @@
 }
 
 body { 
-	padding-top: 30px; 
+	 padding-top: 35px; 
 }
 
 .img-circle {
@@ -17,4 +17,16 @@ body {
 .navbar-inverse .navbar-inner {
 	background-color: #FF7F27;
 }
+@media (max-width: 979px) {
 
+      .navbar-fixed-top {
+        position: fixed;
+      }
+}
+
+@media (max-width: 767px) {
+    .navbar-fixed-top {
+        margin-left: 0px;
+        margin-right: 0px;
+	}
+}

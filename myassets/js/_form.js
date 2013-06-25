@@ -16,7 +16,7 @@
 			$.get( "destroy_option_img.php", { 'option_id': option_id, 'poll_id': poll_id },
 					function( returnMsg ){
 						console.log( returnMsg.errMsg );
-						$("#"+row_id+" img");
+						$("#"+row_id+" img").remove();
 						//.replaceWith('<input name="option[option_img][]" class="fileupload" type="file"></input>');
 						$("#"+row_id+" .destroy_opition_img_btn").remove();
 						$("#"+row_id+" .hidden_option_img_filename").val("");

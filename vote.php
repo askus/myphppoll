@@ -105,7 +105,11 @@ if( isset($_POST['updating']) && $_POST['updating'] == 1 ) {
 	<div class="row">
 		<span>
 		<div class="span1">　</div>
-		<div class="span10"><h3><?= $poll->getDescription() ?></h3><p>舉辦單位：<?= $poll->getDepartment() ?> </p></div>
+		<div class="span10">
+			<h3><?= $poll->getDescription() ?></h3><p>舉辦單位：<?= $poll->getDepartment() ?> </p>
+			開始時間：<?= $poll->getStartDate()->format('Y-m-d H:i') ?>&nbsp;&nbsp;&nbsp;&nbsp;
+			截止時間：<?= $poll->getDueDate()->format('Y-m-d H:i') ?>
+		</div>
 		<div class="span1">　</div>
 	</div>
 <?php

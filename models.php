@@ -1,5 +1,8 @@
 <?php
 
+date_default_timezone_set('Asia/Taipei');
+
+
 require_once( "utility.php");
 function clean( $str ){
     return strip_tags(stripslashes(mysql_real_escape_string( $str ) ) );

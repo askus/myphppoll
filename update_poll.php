@@ -2,7 +2,9 @@
 	$page_title ="後台-修改票選";
 	$page = "update_poll";
 	$LOAD_JS_ARRAY=array("_form.js");
-
+	
+	// for check 
+	$errMsgs = array();
 	require_once( 'utility.php' );
 	require_once( 'models.php' );
 	require_once( 'form_utility.php'); 
@@ -53,11 +55,16 @@
 		$poll->setUserId( $_POST['user_id']);
 
 		//process for image uploading
-		$errMsg= "";
-		if( check_upload_img( $_FILES["poll_img"] , $errMsg  )  ){
+		$errMsg = null;
+		if( check_upload_img( $_FILES["poll_img"] , $errMsg  ) == 1 ){
 			$poll_img_filename = move_to_place( $_FILES["poll_img"], $LOGO_DIR, $poll->getPollId() );
 			$poll->setImgFilename( $poll_img_filename );
+		}else if( !is_null($errMsg) ) {
+			$errMsgs[] = $errMsg ;
 		}
+		//echo '<h1>poll_img </h1>';
+		//print_r( $_FILES['poll_img']);
+
 
 		$optionDao = new OptionDAO();
 		foreach( $raw_option_array as $raw_option ){
@@ -75,10 +82,15 @@
 				$option->setOptionId( $raw_option['option_id']) ; 
 			}
 
-			if( check_upload_img( $raw_option['option_img'], $errMsg ) ){
+			$errMsg = null;
+
+			if( check_upload_img( $raw_option['option_img'], $errMsg ) == 1 ){
 				$option_img_filename = move_to_place( $raw_option['option_img'], $OPTION_DIR, $option->getOptionId() );
 				$option->setImgFilename( $option_img_filename );
+			}else if( !is_null( $errMsg) ){
+				$errMsgs[] = $errMsg;
 			}
+
 			$option_array[] = $option;
 		}
 		$poll->setOptions( $option_array );
@@ -86,12 +98,29 @@
 		$pollDao->updatePoll( $poll );
 		$pollDao->close();
 
-		redirect_to("admin.php");
+		if( count( $errMsgs ) == 0 ){
+			redirect_to("admin.php");
+		}
 	}
 
 ?>
 <?php require( "menu.php"); ?>
+
 <div class="container">
+	<?php
+	if( count($errMsgs ) > 0 ){
+		echo '<div class="row">';
+		echo '<div class="span12 error">';
+		echo '<h3 class="text-error">錯誤</h3>';
+		foreach( $errMsgs as $errMsg ){
+			echo '<p class="text-error">' . $errMsg . "</p>";
+		}
+		echo '</div>';
+		echo '</div>';
+	}
+	 ?>
+
+
 	<div class="row">
 		<!-- <div class="span">&nbsp;</div> -->
 		<div class="span12">
