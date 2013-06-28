@@ -3,7 +3,7 @@
 	require_once( 'models.php');
 	check_login();
 	$poll_id =  $_GET['poll_id'];
-	$user = $_SESSION( "user"); 
+	$user = $_SESSION[ "user"]; 
 
 
 	if( !isset( $poll_id)  ){ 
