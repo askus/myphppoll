@@ -1,4 +1,5 @@
 function update_poll( start, length ){
+	$(".img-loader").show();
 	$.get( "fetch_poll.php",{ start: start, length : length } ,
 		function( data ){
 			console.log(data );
@@ -18,6 +19,7 @@ function update_poll( start, length ){
 				}
 			}
 			$(".marketing").append( html_text);
+			$(".img-loader").hide();
 		} 
 	); 
 }

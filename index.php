@@ -51,6 +51,7 @@ $MAX_STR_LEN=100;
  <div class="container marketing">
       <!-- Three columns of text below the carousel -->
       
+      <center><img src="myassets/img/ajax-loader.gif" class="img-loader"></center>
 </div>
 
 <?php require("bottom.php"); ?>
