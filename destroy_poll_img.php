@@ -3,14 +3,15 @@
 	require_once( 'models.php');
 	check_login();
 	$poll_id =  $_GET['poll_id'];
-	
+	$user = $_SESSION['user'];
+
 	if( !isset( $poll_id)  ){ 
 		$errMsg = "Not found poll id.";
 		$isSuccess = 0; 
-	}else{ 
+	} else { 
+
 		$pollDao = new PollDAO();
 		$poll = $pollDao->getPollByPollId( $poll_id );
-
 		$isSuccess= 0;
 
 		if( $user->getUserId() != $poll->getUserId() ){

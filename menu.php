@@ -29,9 +29,9 @@
 			<div class="nav-collapse collapse">
 				<ul class="nav">
 					<li><a href="index.php">近期票選</a></li>
-					<li><a href="admin.php">員工專區</a></li>
 					<?php 
 						if( isset( $_SESSION['user'])){
+							echo '<li><a href="admin.php">員工專區</a></li>';
 							echo '<li><a href="logout.php">登出</a></li>';
 						}
 					?>

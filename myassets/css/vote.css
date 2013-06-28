@@ -88,5 +88,9 @@
 
   table .table-choice {
     vertical-align: middle !important;
-
   } 
+
+  table.captcha td  {
+    border-top: 0px;
+
+  }

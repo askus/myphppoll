@@ -394,6 +394,7 @@ class DB
             $ret = array();
             $this->query( $sql );
 
+
             $optionDao = new OptionDAO(); 
             while( ($tmp_poll = $this->fetch_object()) != null ){
                 $poll = new Poll();
@@ -410,6 +411,9 @@ class DB
             }
             $optionDao->close();
             
+
+
+
             return $ret[0] ;
         }
 

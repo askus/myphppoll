@@ -1,4 +1,6 @@
 <?php 
+session_start(); // for captcha
+
 $poll_id= $_GET['poll_id'];
 $page_title ="社會局票選系統";
 $page = "vote";
@@ -8,6 +10,8 @@ $VOTE_INTERVAL = 24;  // hour
 require( "utility.php");
 require( "models.php");
 require( "url.php");
+
+
 // check id 
 if( !isset( $poll_id )){ redirect_to("index.php") ; }
 
@@ -62,6 +66,22 @@ if( isset($_POST['updating']) && $_POST['updating'] == 1 ) {
 		$isOk = false; 
 	}
 
+	if( isset( $_POST['captcha_code'])){
+		//include_once( $_SERVER['DOCUMENT_ROOT'] . 'myassets/lib/securimage/securimage.php' );
+		include_once( 'myassets/lib/securimage/securimage.php');
+		$securimage = new Securimage();
+		if ($securimage->check($_POST['captcha_code']) == false) {
+			$errMsg= "驗證碼有誤，請重新輸入。";
+    		$errMsgs[] = $errMsg;
+	  		$isOk= false;
+		}
+	}else{
+		$errMsg = "請輸入驗證碼。";
+		$errMsgs[] = $errMsg;
+		$isOk=false; 
+	}
+
+/*
 	if( isset($_POST["recaptcha_challenge_field"]) ){
 			require_once('myassets/lib/recaptcha/recaptchalib.php');
 			$privatekey = "6LeAneISAAAAAHiTJDo03tDNonmOecBfTizlcxG7";
@@ -79,6 +99,7 @@ if( isset($_POST['updating']) && $_POST['updating'] == 1 ) {
 		$errMsgs[] = $errMsg;
 		$isOk=false; 
 	}
+*/
 	// submit one vote 
 	if( $isOk ){
 		$voteDao->insertVote( $vote ); 
@@ -107,8 +128,8 @@ if( isset($_POST['updating']) && $_POST['updating'] == 1 ) {
 		<div class="span1">　</div>
 		<div class="span10">
 			<h3><?= $poll->getDescription() ?></h3><p>舉辦單位：<?= $poll->getDepartment() ?> </p>
-			開始時間：<?= $poll->getStartDate()->format('Y-m-d H:i') ?>&nbsp;&nbsp;&nbsp;&nbsp;
-			截止時間：<?= $poll->getDueDate()->format('Y-m-d H:i') ?>
+			<p>開始時間：<?= $poll->getStartDate()->format('Y-m-d H:i') ?>&nbsp;&nbsp;&nbsp;&nbsp;
+			截止時間：<?= $poll->getDueDate()->format('Y-m-d H:i') ?> </p>
 		</div>
 		<div class="span1">　</div>
 	</div>
@@ -127,13 +148,14 @@ if( isset($_POST['updating']) && $_POST['updating'] == 1 ) {
 
  ?>
 
+<br> 
 
 <div class="row">
 	<div class="span1">　</div>
 	<div class="span10">
 		<form action="vote.php?poll_id=<?= $poll->getPollId() ?>" method="post">
 			<input type="hidden" name="updating" value="1">
-				<table class="table">
+				<table class="table table-hover">
 					<?php 
 						$row_id= 0; 
 						foreach( $poll->getOptions() as $option ){
@@ -153,19 +175,29 @@ if( isset($_POST['updating']) && $_POST['updating'] == 1 ) {
 							$row_id++; 
 						}
 					?>			
-					<tr>
-						<td colspan="2">
-							<center>
+		
+				</table>
+				<center>
+				<table class="table-condensed captcha" >
+								<tr > 
+									<td></td>
+									<td><img id="captcha" src="myassets/lib/securimage/securimage_show.php" alt="CAPTCHA Image" />
+									<a href="#" onclick="document.getElementById('captcha').src = 'myassets/lib/securimage/securimage_show.php?' + Math.random(); return false" class="btn btn-success"><i class="icon-refresh"></i></a></td>
+								</tr>
+								<tr>
+									<td>請輸入驗證碼：</td>
+									<td><input type="text" name="captcha_code" size="10" maxlength="6"/></td>
+								</tr>
+								</table>
 								<?php
+								/*
           							require_once('myassets/lib/recaptcha/recaptchalib.php');
           							$publickey = "6LeAneISAAAAAJh2QnABfvQ4hiIHyPZZRWged_k5"; // you got this from the signup page
           							echo recaptcha_get_html($publickey);
+        						*/
         						?>
-								<input type="submit" class="btn btn-large btn-primary">
-							</center>
-						</td>
-					</tr>
-				</table>
+								<br><input type="submit" class="btn btn-large btn-primary" value="送出">
+				</center>
 		</form>
 	</div>
 	<div class="span1">　</div>
