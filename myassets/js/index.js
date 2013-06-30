@@ -17,8 +17,8 @@ function update_poll( start, length ){
 				if( i%3 == (3-1) || i == data.length-1  ){
 					html_text += '</div>';
 				}
-			}
-			$(".marketing").append( html_text);
+			}	
+			$(".marketing .img-loader").before( html_text);
 			$(".img-loader").hide();
 		} 
 	); 
@@ -26,8 +26,7 @@ function update_poll( start, length ){
 
 
 
-$( function(){
+$(document).ready( function(){
 	console.log("Hello Test");
 	update_poll( 0, 6 );
-
 });
