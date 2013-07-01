@@ -90,7 +90,7 @@ if( $total_count == 0){ $total_count = 1 ;} // avoid zero dividing problem
 							echo '		 <div class="caption">'.$option->getDescription().'</div>';
 							echo '	</td>';
 							echo '<td>';
-							echo sprintf('%d [ %.2f %%]', $count, $count/ $total_count );
+							echo sprintf('%d [ %.2f %%]', $count, ($count/ $total_count )* 100.0 );
 							echo '</td>';
 						echo "</tr>";
 						$i++;
