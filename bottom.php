@@ -4,7 +4,7 @@
 	<script src="assets/js/vendor/jquery.ui.widget.js"></script>
 	<script src="assets/js/jquery.iframe-transport.js"></script>
 	<script src="assets/js/jquery.fileupload.js"></script>
-	
+	<script src="myassets/js/basic.js"></script>
 	<?php 
 		if( isset( $LOAD_JS_ARRAY )){
 			foreach( $LOAD_JS_ARRAY as $js_file ){

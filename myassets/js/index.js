@@ -1,10 +1,22 @@
-function update_poll( start, length ){
+function update_poll(  ){
+	var start = g_start;
+	var length = g_length ;
+
+	if( g_start < 0 ){return 0;}
+
+	//console.log( g_start );
+
 	$(".img-loader").show();
 	$.get( "fetch_poll.php",{ start: start, length : length } ,
 		function( data ){
-			console.log(data );
 			data = $.parseJSON( data );
-			console.log( data);
+
+			if( data.length < g_length ){
+				g_start = -1 ;
+				g_length = 0 ;
+			}else{
+				g_start += g_length ;
+			}
 
 			var html_text ="";
 			for( var i = 0 ;i < data.length; i++ ){
@@ -26,7 +38,32 @@ function update_poll( start, length ){
 
 
 
+var g_start= 0;
+var g_length =6; 
+
+update_poll( );
+
+
+var is_loading =false;
+$(window).scroll(function() {
+    if($(window).scrollTop() + $(window).height() > $(document).height() - 10) {
+
+ 
+           // ajax call get data from server and append to the div
+        	$(window).unbind('scroll');
+        	if( !is_loading){
+        		is_loading =true;
+    			update_poll();
+    			is_loading = false;
+    		}
+    		$(window).bind('scroll', update_poll);
+    }
+});
+
+
+/*
 $(document).ready( function(){
 	console.log("Hello Test");
 	update_poll( 0, 6 );
 });
+*/

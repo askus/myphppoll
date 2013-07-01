@@ -72,7 +72,7 @@ require_once( 'url.php');
 		echo '</table>';
 		echo '<h4>選項</h4>';
 		echo '<table class="table" id="option_table">';
-		echo '	<tr><th>排序</th><th>說明</th><th>附加圖片</th><th></th></tr>';
+		echo '	<tr><th class="span1">排序</th><th class="span5">說明</th><th class="span5">附加圖片</th><th class="span1"></th></tr>';
 				$row_id = 0;
 				foreach( $poll->getOptions() as $option){
 					echo '<tr id="'.$row_id.'" class="row_tr">';

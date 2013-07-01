@@ -1,3 +1,13 @@
+<?php 
+	if( !isset( $site_img)){
+		require_once("url.php");
+		$site_img = "http://".$_SERVER['SERVER_NAME']. dirname( $_SERVER['REQUEST_URI'] )."/".img_path("default_og.png");
+	}
+	if( !isset( $description )){
+		$page_description = "社會局票選系統";
+	}
+?>
+
 <!DOCTYPE html>
 <html>
 
@@ -5,7 +15,7 @@
 	<link href="assets/css/bootstrap.css" rel="stylesheet">
 	<link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
 	<link href="myassets/css/basic.css" rel="stylesheet">
-	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<?php 
 		$css_filepath = "myassets/css/".$page.".css";
 		if( file_exists($css_filepath ) ){
@@ -15,6 +25,15 @@
 
 	<meta charset="utf-8">
 	<title><?php echo $page_title; ?></title>
+	<meta name="description" content="<?= $page_description ?>"/>
+
+	<meta property="og:image" content="<?= $site_img ?>"/>
+	<meta property="og:title" content="<?= $page_title ?>"/>
+	<meta property="og:site_name" content="臺中市政府社會局票選系統"/>
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="http://<?= $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ?>" />
+	<meta property="og:description" content="<?= $page_description ?>" />
+
 </head>
 <body>
 <div class="navbar navbar navbar-fixed-top">

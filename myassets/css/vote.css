@@ -82,7 +82,7 @@
   table .table-radio {
     height: 140px;
     vertical-align: middle !important;
-    max-width: 10px;
+    /* max-width: 10px;*/
     /* background-color: #EFE4B0; */
   } 
 
@@ -92,5 +92,10 @@
 
   table.captcha td  {
     border-top: 0px;
-
   }
+
+  .table-img {
+    width: 100%;
+    max-width: 800px;
+  } 
+

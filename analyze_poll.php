@@ -44,10 +44,12 @@ if( $total_count == 0){ $total_count = 1 ;} // avoid zero dividing problem
 ?>
 <?php require("menu.php"); ?>
 <div class="carousel slide">
-	<img class="logo" src="<?= logo_path( $poll->getImgFilenameOrDefault() ) ?>" >
-	<div class="container">
-		<div class="carousel-caption">
-			<h1><?= $poll->getTitle() ?></h1>
+	<div class="carousel-inner">
+		<img class="logo" src="<?= logo_path( $poll->getImgFilenameOrDefault() ) ?>" >
+		<div class="container">
+			<div class="carousel-caption">
+				<h1><?= $poll->getTitle() ?></h1>
+			</div>
 		</div>
 	</div>
 </div>

@@ -20,7 +20,10 @@ $poll = $pollDao->getPollByPollId( $poll_id );
 // check poll_id is correct 
 if( is_null( $poll) ){ redirect_to("index.php");}
 
-
+// set title and img 
+$site_img =  "http://".$_SERVER['SERVER_NAME']. dirname( $_SERVER['REQUEST_URI'] )."/".logo_path( $poll->getImgFilenameOrDefault() );
+$page_title = $poll->getTitle();
+$page_description = $poll->getDescription();
 
 // new a vote 
 $vote= new Vote();
@@ -30,7 +33,10 @@ $vote->setIp( $_SERVER['REMOTE_ADDR']);
 // check if voted
 $voteDao = new VoteDAO();
 $lastVotes = $voteDao->getVoteByIpAndPollId( $vote->getIp() , $poll->getPollId() );
+
 if( count( $lastVotes ) > 0 && abs( time() - strtotime( $lastVotes[0]->getLastVote() ) ) < $VOTE_INTERVAL * 60 * 60    ) {
+//if( count( $lastVotes ) > 0 && abs( time() - strtotime( $lastVotes[0]->getLastVote() ) ) <  60    ) {
+
 	redirect_to("error.php?errMsgId=0");
 	$errMsgs[] = "您已經投過票囉。";
 }
@@ -58,13 +64,6 @@ if( isset($_POST['updating']) && $_POST['updating'] == 1 ) {
 	}
 
 
-	$voteDao = new VoteDAO();
-	$lastVotes = $voteDao->getVoteByIpAndPollId( $vote->getIp() , $poll->getPollId() );
-	if( count( $lastVotes ) > 0 && abs( time() - strtotime( $lastVotes[0]->getLastVote() ) ) < $VOTE_INTERVAL * 60 * 60    ) {
-		redirect_to("error.php?errMsgId=0");
-		$errMsgs[] = "您已經投過票囉。";
-		$isOk = false; 
-	}
 
 	if( isset( $_POST['captcha_code'])){
 		//include_once( $_SERVER['DOCUMENT_ROOT'] . 'myassets/lib/securimage/securimage.php' );
@@ -81,25 +80,6 @@ if( isset($_POST['updating']) && $_POST['updating'] == 1 ) {
 		$isOk=false; 
 	}
 
-/*
-	if( isset($_POST["recaptcha_challenge_field"]) ){
-			require_once('myassets/lib/recaptcha/recaptchalib.php');
-			$privatekey = "6LeAneISAAAAAHiTJDo03tDNonmOecBfTizlcxG7";
-			$resp = recaptcha_check_answer ($privatekey,
-                                $_SERVER["REMOTE_ADDR"],
-                                $_POST["recaptcha_challenge_field"],
-                                $_POST["recaptcha_response_field"]);
-  			if (!$resp->is_valid) {
-    			$errMsg= "驗證碼有誤，請重新輸入。";
-    			$errMsgs[] = $errMsg;
-	  			$isOk= false;
-	  		}
-	}else{
-		$errMsg = "請輸入驗證碼。";
-		$errMsgs[] = $errMsg;
-		$isOk=false; 
-	}
-*/
 	// submit one vote 
 	if( $isOk ){
 		$voteDao->insertVote( $vote ); 
@@ -113,10 +93,12 @@ if( isset($_POST['updating']) && $_POST['updating'] == 1 ) {
 
 <?php require( "menu.php"); ?>
 <div class="carousel slide">
-	<img class="logo" src="<?= logo_path( $poll->getImgFilenameOrDefault() ) ?>" >
-	<div class="container">
-		<div class="carousel-caption">
-			<h1><?= $poll->getTitle() ?></h1>
+	<div class="carousel-inner">
+		<img class="logo" src="<?= logo_path( $poll->getImgFilenameOrDefault() ) ?>" >
+		<div class="container">
+			<div class="carousel-caption">
+				<h1><?= $poll->getTitle() ?></h1>
+			</div>
 		</div>
 	</div>
 </div>
@@ -160,15 +142,15 @@ if( isset($_POST['updating']) && $_POST['updating'] == 1 ) {
 						$row_id= 0; 
 						foreach( $poll->getOptions() as $option ){
 							echo "<tr>";
-							echo '	<td class="controls table-radio"><input type="radio" id="choice_'.$row_id.'" name="choice_option_id" value='.$option->getOptionId().'></td>';
-							echo '	<td class="table-choice">';
+							echo '	<td class="span1 controls table-radio"><input type="radio" id="choice_'.$row_id.'" name="choice_option_id" value='.$option->getOptionId().'></td>';
+							echo '	<td class="span9 table-choice">';
 							echo '		<label class="control-label" for="choice_'.$row_id.'">';
-							echo '			<div class="img">';
+							echo '			<div class="table-img">';
 							if( !is_null( $option->getImgFilename() ) ){
-											echo '<img class="img-polaroid" src="'.option_path($option->getImgFilename()).'"></div>';
+											echo '<img class="img-polaroid choice-img" src="'.option_path($option->getImgFilename()).'" ></img>';
 							}
 							echo '			</div>';
-							echo '			<div class="caption">'.$option->getDescription().'</div>';
+							echo '			<div class="table-caption"><p>'.$option->getDescription().'</p></div>';
 							echo '		</label>';
 							echo '	</td>';
 							echo "</tr>";

@@ -48,7 +48,7 @@ check_login();
 							echo '<td>
 									<a class="btn btn-small" href="analyze_poll.php?poll_id='.$poll->getPollId().'"> <i class="icon-eye-open"></i></a><br> 
 									<a class="btn btn-small" href="update_poll.php?poll_id='.$poll->getPollId().'"> <i class="icon-edit"></i></a> <br>
-									<a class="btn btn-small" onclick="destroy_poll('.$poll->getPollId().', '. $row_id.')" > <i class="icon-remove"> </i></a>
+									<a class="btn btn-small btn-danger" onclick="destroy_poll('.$poll->getPollId().', '. $row_id.')" > <i class="icon-remove"> </i></a>
 
 								</td>'; 
 							echo '</tr>';
